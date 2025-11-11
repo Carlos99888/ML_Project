@@ -8,6 +8,7 @@ from polygon import RESTClient
 import pandas as pd
 import time
 import csv
+from stock_class import StockData
 api_k = "uMcnW2vhdDQy9S956cDTSUjjoUNe1FQg"
 
 client = RESTClient(api_key=api_k)
@@ -82,12 +83,18 @@ def make_df(aggs):
 #     op_df.to_csv("spy_options_multiple.csv", index=True)
 #     print(op_df)
 
-ticker = 'SPY'
-stock_historical = client.get_aggs(ticker=ticker,
-                               multiplier=1,
-                               timespan='day',
-                               from_='2025-01-01',
-                               to='2026-01-01')
+# ticker = 'SPY'
+# stock_historical = client.get_aggs(ticker=ticker,
+#                                multiplier=1,
+#                                timespan='day',
+#                                from_='2025-01-01',
+#                                to='2026-01-01')
 
-df_historical = make_df(stock_historical)
-df_historical.to_csv("spy_historical_v2.csv")
+# df_historical = make_df(stock_historical)
+# df_historical.to_csv("spy_historical_v2.csv")
+stock_df = StockData(api_k)
+
+stock_spy = stock_df.get_spy_historical("2025-01-01", "2025-11-07")
+stock_spy = stock_df.add_indicators(stock_spy)
+# Optional visualization
+stock_df.visualize(stock_spy)
