@@ -12,6 +12,7 @@ import time
 from datetime import datetime
 from scipy.stats import norm
 import csv
+from datetime import datetime
 
 
 class StockData:
@@ -31,29 +32,36 @@ class StockData:
     # -------------------------------------------------------------
     # 1️⃣ Fetch Historical SPY OHLCV
     # -------------------------------------------------------------
-    def get_spy_historical(self, start_date="2024-01-01", end_date="2024-12-31"):
-        data = []
-        for bar in self.client.list_aggs(
-            ticker="SPY", 
-            multiplier=1, 
-            timespan="day", 
-            from_=start_date, 
+    def get_spy_historical(self, start_date, end_date):
+        client = self.client
+
+        rows = []
+
+        for bar in client.list_aggs(
+            ticker="SPY",
+            multiplier=1,
+            timespan="day",
+            from_=start_date,
             to=end_date,
-            adjusted=True, 
-            sort="asc", 
+            adjusted=True,
+            sort="asc",
             limit=50000
         ):
-            date = datetime.fromtimestamp(bar.timestamp / 1000)
-            data.append({
-                "date": date.strftime("%Y-%m-%d"),
+            # Convert timestamp safely
+            ts = int(bar.timestamp)
+            ts_sec = ts / 1000
+            date = datetime.utcfromtimestamp(ts_sec).strftime("%Y-%m-%d")
+
+            rows.append({
+                "date": date,
                 "open": bar.open,
                 "high": bar.high,
                 "low": bar.low,
                 "close": bar.close,
                 "volume": bar.volume
             })
-        df = pd.DataFrame(data)
-        print(f"📈 Loaded {len(df)} daily SPY bars.")
+
+        df = pd.DataFrame(rows)
         return df
 
     # -------------------------------------------------------------
@@ -260,24 +268,24 @@ class StockData:
         bt.plot(open_browser=True)
 
 
-# -------------------------------------------------------------
-# ✅ Example Usage
-# -------------------------------------------------------------
-if __name__ == "__main__":
-    api_key = "YOUR_POLYGON_API_KEY"
-    stock = StockData(api_key)
+# # -------------------------------------------------------------
+# # ✅ Example Usage
+# # -------------------------------------------------------------
+# if __name__ == "__main__":
+#     api_key = "YOUR_POLYGON_API_KEY"
+#     stock = StockData(api_key)
 
-    spy_df = stock.get_spy_historical("2025-01-01", "2025-11-07")
-    options_df = stock.get_spy_options(limit=20)
+#     spy_df = stock.get_spy_historical("2025-01-01", "2025-11-07")
+#     options_df = stock.get_spy_options(limit=20)
 
-    sigma = stock.estimate_volatility(spy_df)
-    spy_price = stock.get_latest_spy_price()
-    options_greeks = stock.compute_greeks_for_options(options_df, spy_price, sigma)
+#     sigma = stock.estimate_volatility(spy_df)
+#     spy_price = stock.get_latest_spy_price()
+#     options_greeks = stock.compute_greeks_for_options(options_df, spy_price, sigma)
 
-    spy_df = stock.add_indicators(spy_df)
-    spy_df.to_csv("spy_training_dataset.csv")
-    options_greeks.to_csv("spy_options_with_greeks.csv")
-    print("💾 Saved training datasets successfully!")
+#     spy_df = stock.add_indicators(spy_df)
+#     spy_df.to_csv("spy_training_dataset.csv")
+#     options_greeks.to_csv("spy_options_with_greeks.csv")
+#     print("💾 Saved training datasets successfully!")
 
-    # Optional visualization
-    stock.visualize(spy_df)
+#     # Optional visualization
+#     stock.visualize(spy_df)
