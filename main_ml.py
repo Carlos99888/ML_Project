@@ -35,9 +35,10 @@ stock = StockData(api_k)
 
 #getting historical data of SPY500 starting date to end-date
 spy_df = stock.get_spy_historical("2025-01-01", "2025-11-07")
+print(stock.estimate_volatility(spy_df))
 spy_df_indicator = stock.add_indicators(spy_df)
 
-stock.visualize(spy_df)
+#stock.visualize(spy_df)
 #spy_df.to_csv("spy_h.csv")
 #spy_df_indicator.to_csv("spy_hist_indicator.csv")
 
@@ -51,3 +52,9 @@ stock.visualize(spy_df)
 
 # # Optional visualization
 # stock.visualize(spy_df)
+
+'''
+Youtube to get historical data options: https://www.youtube.com/watch?v=87O9qxfMJ-g
+PolygonIO API document: https://massive.com/docs/rest/quickstart
+Yahoo finace: https://finance.yahoo.com/quote/SPY/
+'''
